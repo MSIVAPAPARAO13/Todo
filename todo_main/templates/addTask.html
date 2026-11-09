@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Add Task - Django ToDo Pro{% endblock %}
+
+{% block content %}
+<div class="edit-task-wrapper">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-decoration-none"><i class="fa-solid fa-house me-1"></i>Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Add Task</li>
+        </ol>
+    </nav>
+
+    <div class="edit-task-card">
+        <div class="edit-task-header">
+            <h3 class="fw-bold mb-1 d-flex align-items-center gap-2">
+                <i class="fa-solid fa-plus text-primary"></i>
+                Create New Task
+            </h3>
+            <span class="text-muted small">Add a new item to your daily to-do list</span>
+        </div>
+
+        <form method="POST" action="{% url 'addTask' %}" autocomplete="off">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="task" class="form-label fw-semibold text-dark">Task Description</label>
+                <div class="task-input-group">
+                    <i class="fa-solid fa-pen task-input-icon"></i>
+                    <input type="text" class="task-input" id="task" name="task" placeholder="e.g. Finish Django deployment configuration" required autofocus maxlength="200">
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-end gap-2">
+                <a href="{% url 'home' %}" class="btn btn-outline-secondary px-4 py-2 rounded-3 fw-semibold">
+                    <i class="fa-solid fa-xmark me-1"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-primary px-4 py-2 rounded-3 fw-semibold">
+                    <i class="fa-solid fa-plus me-1"></i> Add Task
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

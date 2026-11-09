@@ -1,42 +1,93 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Task -Django TODO App</title>
-     <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+{% extends 'base.html' %}
+{% load static %}
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5Ml1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+{% block title %}Edit Task - Django ToDo Pro{% endblock %}
 
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+{% block content %}
+<div class="edit-task-wrapper">
+    <!-- Breadcrumb navigation -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-decoration-none"><i class="fa-solid fa-house me-1"></i>Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Edit Task</li>
+        </ol>
+    </nav>
 
-</head>
-<body>
-    <div>
-        
-        <h3 class="pt-5 text-center">Django ToDo App</h3>
-
-        <div class="row">
-            <h4>Edit Task</h4>
-
-            <p class="text-muted">{% now "jS F Y" %}</p>
-
-            <!-- Edit Task Form -->
-            <div class="col-md-7 col-lg-7">
-
-                <form method="POST" action="{% url 'edit_task' task.pk %}">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="task" class="form-label">Task</label>
-                        <input type="text" class="form-control" id="task" name="task" value="{{ task.task }}" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Update Task</button>
-                </form>
-
+    <!-- Card -->
+    <div class="edit-task-card">
+        <div class="edit-task-header d-flex justify-content-between align-items-center">
+            <div>
+                <h3 class="fw-bold mb-1 d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-primary"></i>
+                    Edit Task
+                </h3>
+                <span class="text-muted small">Update your task details and keep your list accurate</span>
+            </div>
+            <div>
+                {% if task.is_completed %}
+                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">
+                        <i class="fa-solid fa-circle-check me-1"></i> Completed
+                    </span>
+                {% else %}
+                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2 rounded-pill">
+                        <i class="fa-solid fa-clock me-1"></i> Pending
+                    </span>
+                {% endif %}
             </div>
         </div>
+
+        <form method="POST" action="{% url 'edit_task' task.pk %}" autocomplete="off">
+            {% csrf_token %}
+
+            <div class="mb-4">
+                <label for="taskInput" class="form-label fw-semibold text-dark">Task Description</label>
+                <div class="task-input-group">
+                    <i class="fa-solid fa-pen task-input-icon"></i>
+                    <input type="text" class="task-input" id="taskInput" name="task" value="{{ task.task }}" maxlength="200" required autofocus>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-2 px-1">
+                    <span class="text-muted small"><i class="fa-solid fa-circle-info me-1"></i>Maximum 200 characters</span>
+                    <span id="charCount" class="badge bg-light text-secondary border small">0 / 200</span>
+                </div>
+            </div>
+
+            <div class="p-3 bg-light rounded-3 mb-4 border">
+                <div class="row g-2 text-muted small">
+                    <div class="col-sm-6">
+                        <i class="fa-regular fa-calendar-plus me-1 text-primary"></i>
+                        <strong>Created:</strong> {{ task.created_at|date:"M d, Y • h:i A" }}
+                    </div>
+                    <div class="col-sm-6">
+                        <i class="fa-solid fa-clock-rotate-left me-1 text-secondary"></i>
+                        <strong>Last Modified:</strong> {{ task.updated_at|date:"M d, Y • h:i A" }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-end gap-2 pt-2">
+                <a href="{% url 'home' %}" class="btn btn-outline-secondary px-4 py-2 rounded-3 fw-semibold">
+                    <i class="fa-solid fa-xmark me-1"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-primary px-4 py-2 rounded-3 fw-semibold">
+                    <i class="fa-solid fa-floppy-disk me-1"></i> Save Changes
+                </button>
+            </div>
+        </form>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const input = document.getElementById('taskInput');
+    const counter = document.getElementById('charCount');
+
+    function updateCount() {
+        const len = input.value.length;
+        counter.textContent = `${len} / 200`;
+    }
+
+    input.addEventListener('input', updateCount);
+    updateCount();
+</script>
+{% endblock %}

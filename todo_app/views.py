@@ -1,41 +1,44 @@
-from django.http import HttpResponse, request
 from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib import messages
 from .models import Task
 
-# Create your views here.
 def addTask(request):
-    task=request.POST['task']
-    Task.objects.create(task=task)
-    return redirect('home')
+    if request.method == 'POST':
+        task_text = request.POST.get('task', '').strip()
+        if task_text:
+            Task.objects.create(task=task_text)
+            messages.success(request, 'Task added successfully!')
+        else:
+            messages.warning(request, 'Task title cannot be empty!')
+        return redirect('home')
+    return render(request, 'addTask.html')
 
 def mark_as_done(request, pk):
     task = get_object_or_404(Task, pk=pk)
     task.is_completed = True
     task.save()
+    messages.success(request, f'Task completed: "{task.task}"')
     return redirect('home')
 
-# Mark a completed task as undone
 def mark_as_undone(request, pk):
-
-    # Get the task using its primary key
     task = get_object_or_404(Task, pk=pk)
-
-    # Change the task status to False
     task.is_completed = False
-
-    # Save the changes in the database
     task.save()
-
-    # Redirect to the home page
-    return redirect('/')
+    messages.info(request, f'Task marked as pending: "{task.task}"')
+    return redirect('home')
 
 def edit_task(request, pk):
     task = get_object_or_404(Task, pk=pk)
 
     if request.method == 'POST':
-        task.task = request.POST['task']
-        task.save()
-        return redirect('home')
+        task_text = request.POST.get('task', '').strip()
+        if task_text:
+            task.task = task_text
+            task.save()
+            messages.success(request, 'Task updated successfully!')
+            return redirect('home')
+        else:
+            messages.warning(request, 'Task title cannot be empty!')
 
     context = {
         'task': task
@@ -44,5 +47,7 @@ def edit_task(request, pk):
 
 def delete_task(request, pk):
     task = get_object_or_404(Task, pk=pk)
+    task_name = task.task
     task.delete()
+    messages.success(request, f'Task deleted: "{task_name}"')
     return redirect('home')
